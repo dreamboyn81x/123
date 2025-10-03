@@ -2,6 +2,35 @@ name: Build job
 
 on:
   workflow_call:
+  push:  # 添加 push 事件触发
+    branches:
+      - main
+      - master
+    paths:
+      - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '**/global.json'
+      - '**/AndroidManifest.xml'
+      - '**/*.axml'
+      - '**/*.java'
+      - '**/*.kt'
+      - '**/*.gradle'
+      - '**/build.gradle'
+      - '**/gradle.properties'
+  pull_request:  # 保留原有的 PR 触发
+    paths:
+      - '**/*.cs'
+      - '**/*.csproj'
+      - '**/*.sln'
+      - '**/global.json'
+      - '**/AndroidManifest.xml'
+      - '**/*.axml'
+      - '**/*.java'
+      - '**/*.kt'
+      - '**/*.gradle'
+      - '**/build.gradle'
+      - '**/gradle.properties'
 
 env:
   POWERSHELL_TELEMETRY_OPTOUT: 1
@@ -9,6 +38,38 @@ env:
   RYUJINX_BASE_VERSION: "1.1.0"
 
 jobs:
+  # 添加 Android APK 构建任务
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          
+      - name: Build Android APK
+        run: |
+          # 这里添加构建 Android APK 的命令
+          # 例如: dotnet build -c Release -f net8.0-android
+          # 或者使用 Gradle: ./gradlew assembleRelease
+          echo "Android APK 构建逻辑将在这里实现"
+          
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: path/to/your/app.apk
+
+  # 保留原有的构建任务
   build:
     name: ${{ matrix.platform.name }} (${{ matrix.configuration }})
     runs-on: ${{ matrix.platform.os }}
@@ -21,7 +82,6 @@ jobs:
           - { name: linux-x64,   os: ubuntu-latest,  zip_os_name: linux_x64   }
           - { name: linux-arm64, os: ubuntu-latest,  zip_os_name: linux_arm64 }
           - { name: osx-x64,     os: macos-13,       zip_os_name: osx_x64     }
-
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
