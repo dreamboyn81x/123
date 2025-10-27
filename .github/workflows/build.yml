@@ -50,7 +50,7 @@ jobs:
 
     steps:
     - name: Download APK artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v6
       with:
         name: app-debug-apk
 
